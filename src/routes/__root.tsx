@@ -77,9 +77,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Asistencia Rápida" },
+      { title: "Pronto" },
       { name: "description", content: "Ayuda práctica para extranjeros en Brasil." },
-      { name: "author", content: "Asistencia Rápida" },
+      { name: "author", content: "Pronto" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
