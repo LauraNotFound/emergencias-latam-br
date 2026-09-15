@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Building2,
@@ -324,6 +325,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [language, setLanguage] = useState<Language>("es");
