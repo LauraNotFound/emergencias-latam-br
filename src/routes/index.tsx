@@ -13,11 +13,20 @@ import {
   Moon,
   ShieldAlert,
   Sun,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
 
 import { Button } from "@/components/ui/button";
+import {
+  AccountActions,
+  AuthDialog,
+  SuggestionDialog,
+  type SuggestionCategory,
+} from "@/components/account-suggestion-dialogs";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 type Step = {
@@ -263,6 +272,8 @@ const interfaceCopy = {
     languageLabel: "Idioma",
     lightMode: "Activar modo claro",
     darkMode: "Activar modo oscuro",
+    completedTitle: "¡Todo listo!",
+    completedText: "Completaste todos los pasos de esta guía.",
   },
   en: {
     practicalHelp: "Practical help in Brazil",
@@ -287,6 +298,8 @@ const interfaceCopy = {
     languageLabel: "Language",
     lightMode: "Switch to light mode",
     darkMode: "Switch to dark mode",
+    completedTitle: "All done!",
+    completedText: "You completed every step in this guide.",
   },
 };
 
@@ -315,6 +328,11 @@ function Index() {
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [language, setLanguage] = useState<Language>("es");
   const [isDark, setIsDark] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [suggestionOpen, setSuggestionOpen] = useState(false);
+  const [pendingSuggestion, setPendingSuggestion] = useState(false);
+  const [celebratingCategory, setCelebratingCategory] = useState<string | null>(null);
   const selected = categories.find((category) => category.id === selectedId);
   const copy = interfaceCopy[language];
 
@@ -322,6 +340,77 @@ function Index() {
     document.documentElement.classList.toggle("dark", isDark);
     document.documentElement.lang = language;
   }, [isDark, language]);
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getUser().then(({ data }) => {
+      if (active) setUser(data.user ?? null);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!celebratingCategory) return;
+    const timeout = window.setTimeout(() => setCelebratingCategory(null), 3200);
+    return () => window.clearTimeout(timeout);
+  }, [celebratingCategory]);
+
+  const openSuggestion = () => {
+    if (user) {
+      setSuggestionOpen(true);
+      return;
+    }
+    setPendingSuggestion(true);
+    setAuthOpen(true);
+  };
+
+  const finishAuthentication = () => {
+    if (pendingSuggestion) {
+      setPendingSuggestion(false);
+      setSuggestionOpen(true);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setSuggestionOpen(false);
+  };
+
+  const toggleStep = (stepId: string, category: Category) => {
+    setCompleted((current) => {
+      const next = { ...current, [stepId]: !current[stepId] };
+      const wasComplete = category.steps.every((step) => Boolean(current[step.id]));
+      const isComplete = category.steps.every((step) => Boolean(next[step.id]));
+      if (!wasComplete && isComplete) setCelebratingCategory(category.id);
+      if (!isComplete && celebratingCategory === category.id) setCelebratingCategory(null);
+      return next;
+    });
+  };
+
+  const categoryOptions = categories.map((category) => ({
+    id: category.id as SuggestionCategory,
+    label: language === "es" ? category.title : category.titleEN,
+  }));
+
+  const dialogs = (
+    <>
+      <AuthDialog language={language} open={authOpen} onOpenChange={setAuthOpen} onAuthenticated={finishAuthentication} />
+      <SuggestionDialog
+        key={`${selectedId ?? "all"}-${language}`}
+        language={language}
+        open={suggestionOpen}
+        onOpenChange={setSuggestionOpen}
+        categories={categoryOptions}
+        defaultCategory={(selectedId as SuggestionCategory | null) ?? undefined}
+      />
+    </>
+  );
 
   const openCategory = (id: string) => {
     setSelectedId(id);
@@ -347,6 +436,10 @@ function Index() {
               {copy.back}
             </Button>
             <HeaderControls language={language} setLanguage={setLanguage} isDark={isDark} setIsDark={setIsDark} />
+          </div>
+
+          <div className="mt-3 flex justify-end">
+            <AccountActions language={language} user={user} onSignIn={() => setAuthOpen(true)} onSuggest={openSuggestion} onSignOut={handleSignOut} />
           </div>
 
           <header className="mt-5 flex items-start gap-4">
@@ -382,6 +475,17 @@ function Index() {
               </p>
             </div>
 
+            {celebratingCategory === selected.id && (
+              <div className="celebration-banner relative mb-4 overflow-hidden rounded-lg border border-medical/30 bg-medical-soft px-5 py-4 text-center" role="status" aria-live="polite">
+                <div className="confetti" aria-hidden="true">
+                  {Array.from({ length: 14 }, (_, index) => <i key={index} />)}
+                </div>
+                <Sparkles aria-hidden="true" className="mx-auto text-medical" size={25} />
+                <p className="mt-1 font-bold text-foreground">{copy.completedTitle}</p>
+                <p className="text-sm text-muted-foreground">{copy.completedText}</p>
+              </div>
+            )}
+
             <div className="space-y-3">
               {selected.steps.map((step, index) => {
                 const isComplete = Boolean(completed[step.id]);
@@ -389,7 +493,7 @@ function Index() {
                   <button
                     key={step.id}
                     type="button"
-                    onClick={() => setCompleted((current) => ({ ...current, [step.id]: !current[step.id] }))}
+                    onClick={() => toggleStep(step.id, selected)}
                     className={cn(
                       "group flex w-full items-start gap-3 rounded-lg border bg-card p-4 text-left shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:p-5",
                       isComplete ? "border-border bg-muted/60 opacity-65" : "border-border hover:border-primary/35 hover:shadow-md",
@@ -423,6 +527,7 @@ function Index() {
             </div>
           </section>
         </div>
+        {dialogs}
       </main>
     );
   }
@@ -437,6 +542,9 @@ function Index() {
               <p className="text-sm font-bold">{copy.practicalHelp}</p>
             </div>
             <HeaderControls language={language} setLanguage={setLanguage} isDark={isDark} setIsDark={setIsDark} />
+          </div>
+          <div className="mt-3 flex justify-end">
+            <AccountActions language={language} user={user} onSignIn={() => setAuthOpen(true)} onSuggest={openSuggestion} onSignOut={handleSignOut} />
           </div>
           <h1 className="mt-5 text-3xl font-bold text-foreground sm:text-4xl">{copy.appTitle}</h1>
           <p className="mt-3 max-w-lg text-base leading-relaxed text-muted-foreground">
@@ -483,6 +591,7 @@ function Index() {
           </p>
         </aside>
       </div>
+      {dialogs}
     </main>
   );
 }
