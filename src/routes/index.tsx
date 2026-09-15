@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 
 import { Button } from "@/components/ui/button";
+import { PhraseActions } from "@/components/phrase-actions";
 import {
   AccountActions,
   AuthDialog,
@@ -494,26 +495,25 @@ function Index() {
               {selected.steps.map((step, index) => {
                 const isComplete = Boolean(completed[step.id]);
                 return (
-                  <button
+                  <article
                     key={step.id}
-                    type="button"
-                    onClick={() => toggleStep(step.id, selected)}
                     className={cn(
                       "group flex w-full items-start gap-3 rounded-lg border bg-card p-4 text-left shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:p-5",
                       isComplete ? "border-border bg-muted/60 opacity-65" : "border-border hover:border-primary/35 hover:shadow-md",
                     )}
-                    aria-pressed={isComplete}
-                    aria-label={`${isComplete ? copy.markPending : copy.markComplete}: ${step.phrasePT}`}
                   >
-                    <span
+                    <button
+                      type="button"
+                      onClick={() => toggleStep(step.id, selected)}
                       className={cn(
                         "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
                         isComplete ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background group-hover:border-primary/60",
                       )}
-                      aria-hidden="true"
+                      aria-pressed={isComplete}
+                      aria-label={`${isComplete ? copy.markPending : copy.markComplete}: ${step.phrasePT}`}
                     >
-                      {isComplete ? <Check size={17} strokeWidth={3} /> : <span className="text-xs font-bold text-muted-foreground">{index + 1}</span>}
-                    </span>
+                      {isComplete ? <Check aria-hidden="true" size={17} strokeWidth={3} /> : <span aria-hidden="true" className="text-xs font-bold text-muted-foreground">{index + 1}</span>}
+                    </button>
                     <span className="min-w-0 flex-1">
                       <span className="inline-flex rounded-sm bg-secondary px-2 py-1 text-xs font-bold text-secondary-foreground">
                         {language === "es" ? step.phase : step.phaseEN}
@@ -524,8 +524,11 @@ function Index() {
                       <span className={cn("mt-2 block text-sm leading-relaxed text-muted-foreground", isComplete && "line-through")}>
                         {language === "es" ? step.phraseES : step.phraseEN}
                       </span>
+                      <span className="mt-4 block">
+                        <PhraseActions phrase={step.phrasePT} language={language} compact />
+                      </span>
                     </span>
-                  </button>
+                  </article>
                 );
               })}
             </div>

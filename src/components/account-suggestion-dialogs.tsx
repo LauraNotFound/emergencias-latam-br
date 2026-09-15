@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
+import { PhraseActions } from "@/components/phrase-actions";
 import {
   Dialog,
   DialogContent,
@@ -198,6 +199,7 @@ export function AuthDialog({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const [phrasePT, setPhrasePT] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -336,6 +338,7 @@ export function SuggestionDialog({
     setMessage(copy.submitted);
     event.currentTarget.reset();
     setCategory(defaultCategory ?? "");
+    setPhrasePT("");
   }
 
   return (
@@ -355,7 +358,16 @@ export function SuggestionDialog({
           </div>
           <div className="space-y-2">
             <Label htmlFor="phrase-pt">{copy.portuguesePhrase}</Label>
-            <Textarea id="phrase-pt" name="phrasePT" minLength={2} maxLength={300} required />
+            <Textarea
+              id="phrase-pt"
+              name="phrasePT"
+              minLength={2}
+              maxLength={300}
+              value={phrasePT}
+              onChange={(event) => setPhrasePT(event.target.value)}
+              required
+            />
+            <PhraseActions phrase={phrasePT} language={language} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="translation">{copy.translation}</Label>
