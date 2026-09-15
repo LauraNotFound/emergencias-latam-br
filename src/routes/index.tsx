@@ -5,8 +5,8 @@ import {
   Building2,
   Check,
   ChevronRight,
-  Cross,
   ExternalLink,
+  Handshake,
   HeartPulse,
   Landmark,
   Languages,
@@ -253,7 +253,7 @@ type Language = "es" | "en";
 const interfaceCopy = {
   es: {
     practicalHelp: "Ayuda práctica en Brasil",
-    appTitle: "Asistencia Rápida",
+    appTitle: "Pronto",
     intro: "Elige lo que necesitas. Encontrarás frases en portugués para mostrar o decir durante cada paso.",
     categoriesLabel: "Categorías de ayuda",
     viewGuide: "Ver guía",
@@ -279,7 +279,7 @@ const interfaceCopy = {
   },
   en: {
     practicalHelp: "Practical help in Brazil",
-    appTitle: "Quick Assistance",
+    appTitle: "Pronto",
     intro: "Choose what you need. You’ll find Portuguese phrases to show or say at every step.",
     categoriesLabel: "Help categories",
     viewGuide: "View guide",
@@ -308,12 +308,12 @@ const interfaceCopy = {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Asistencia Rápida | Ayuda en Brasil" },
+      { title: "Pronto | Ayuda práctica en Brasil" },
       {
         name: "description",
         content: "Frases prácticas en portugués para emergencias y trámites esenciales en Brasil.",
       },
-      { property: "og:title", content: "Asistencia Rápida | Ayuda en Brasil" },
+      { property: "og:title", content: "Pronto | Ayuda práctica en Brasil" },
       {
         property: "og:description",
         content: "Frases prácticas en portugués para emergencias y trámites esenciales en Brasil.",
@@ -430,22 +430,26 @@ function Index() {
     return (
       <main className="min-h-screen bg-background">
         <div className="mx-auto w-full max-w-2xl px-4 pb-12 pt-4 sm:px-6 sm:pt-8">
-          <div className="flex items-center justify-between gap-3">
-            <Button
-              variant="ghost"
-              className="-ml-3"
-              onClick={() => setSelectedId(null)}
-              aria-label={copy.backLabel}
-            >
-              <ArrowLeft aria-hidden="true" size={20} />
-              {copy.back}
-            </Button>
-            <HeaderControls language={language} setLanguage={setLanguage} isDark={isDark} setIsDark={setIsDark} />
-          </div>
+          <AppNavbar
+            language={language}
+            setLanguage={setLanguage}
+            isDark={isDark}
+            setIsDark={setIsDark}
+            user={user}
+            onSignIn={() => setAuthOpen(true)}
+            onSuggest={openSuggestion}
+            onSignOut={handleSignOut}
+          />
 
-          <div className="mt-3 flex justify-end">
-            <AccountActions language={language} user={user} onSignIn={() => setAuthOpen(true)} onSuggest={openSuggestion} onSignOut={handleSignOut} />
-          </div>
+          <Button
+            variant="ghost"
+            className="-ml-3 mt-4"
+            onClick={() => setSelectedId(null)}
+            aria-label={copy.backLabel}
+          >
+            <ArrowLeft aria-hidden="true" size={20} />
+            {copy.back}
+          </Button>
 
           <header className="mt-5 flex items-start gap-4">
             <div className={cn("flex size-14 shrink-0 items-center justify-center rounded-lg border", colorStyles[selected.color])}>
@@ -534,6 +538,7 @@ function Index() {
             </div>
           </section>
         </div>
+        <AppFooter />
         {dialogs}
       </main>
     );
@@ -543,16 +548,16 @@ function Index() {
     <main className="min-h-screen bg-background">
       <div className="mx-auto w-full max-w-2xl px-4 pb-12 pt-8 sm:px-6 sm:pt-14">
         <header>
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-primary">
-              <Cross aria-hidden="true" size={21} strokeWidth={3} />
-              <p className="text-sm font-bold">{copy.practicalHelp}</p>
-            </div>
-            <HeaderControls language={language} setLanguage={setLanguage} isDark={isDark} setIsDark={setIsDark} />
-          </div>
-          <div className="mt-3 flex justify-end">
-            <AccountActions language={language} user={user} onSignIn={() => setAuthOpen(true)} onSuggest={openSuggestion} onSignOut={handleSignOut} />
-          </div>
+          <AppNavbar
+            language={language}
+            setLanguage={setLanguage}
+            isDark={isDark}
+            setIsDark={setIsDark}
+            user={user}
+            onSignIn={() => setAuthOpen(true)}
+            onSuggest={openSuggestion}
+            onSignOut={handleSignOut}
+          />
           <h1 className="mt-5 text-3xl font-bold text-foreground sm:text-4xl">{copy.appTitle}</h1>
           <p className="mt-3 max-w-lg text-base leading-relaxed text-muted-foreground">
             {copy.intro}
@@ -598,54 +603,82 @@ function Index() {
           </p>
         </aside>
       </div>
+      <AppFooter />
       {dialogs}
     </main>
   );
 }
 
-function HeaderControls({
+function AppNavbar({
   language,
   setLanguage,
   isDark,
   setIsDark,
+  user,
+  onSignIn,
+  onSuggest,
+  onSignOut,
 }: {
   language: Language;
   setLanguage: (language: Language) => void;
   isDark: boolean;
   setIsDark: (isDark: boolean) => void;
+  user: User | null;
+  onSignIn: () => void;
+  onSuggest: () => void;
+  onSignOut: () => void;
 }) {
   const copy = interfaceCopy[language];
 
   return (
-    <nav className="flex shrink-0 items-center gap-2" aria-label={language === "es" ? "Preferencias" : "Preferences"}>
-      <div className="flex h-11 items-center rounded-md border border-border bg-card p-1 shadow-sm" aria-label={copy.languageLabel} role="group">
-        <Languages aria-hidden="true" className="ml-1 mr-0.5 text-muted-foreground" size={16} />
-        {(["es", "en"] as const).map((option) => (
-          <button
-            key={option}
-            type="button"
-            onClick={() => setLanguage(option)}
-            className={cn(
-              "flex h-8 min-w-9 items-center justify-center rounded-sm px-2 text-xs font-bold uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              language === option ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-            aria-pressed={language === option}
-            aria-label={option === "es" ? "Español" : "English"}
-          >
-            {option}
-          </button>
-        ))}
+    <nav className="flex min-h-14 items-center justify-between gap-2 border-b border-border pb-3" aria-label={language === "es" ? "Navegación principal" : "Main navigation"}>
+      <div className="flex min-w-0 items-center gap-2.5 text-primary" aria-label="Pronto">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
+          <Handshake aria-hidden="true" size={24} strokeWidth={2.3} />
+        </span>
+        <span className="truncate text-xl font-bold text-foreground">Pronto</span>
       </div>
+      <div className="flex shrink-0 items-center gap-0.5">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="relative size-10"
+          onClick={() => setLanguage(language === "es" ? "en" : "es")}
+          aria-label={`${copy.languageLabel}: ${language === "es" ? "English" : "Español"}`}
+          title={language === "es" ? "English" : "Español"}
+        >
+          <Languages aria-hidden="true" size={20} />
+          <span aria-hidden="true" className="absolute bottom-0.5 right-0.5 text-[9px] font-bold uppercase text-primary">{language}</span>
+        </Button>
       <Button
         type="button"
-        variant="outline"
+        variant="ghost"
         size="icon"
+        className="size-10"
         onClick={() => setIsDark(!isDark)}
         aria-label={isDark ? copy.lightMode : copy.darkMode}
         title={isDark ? copy.lightMode : copy.darkMode}
       >
         {isDark ? <Sun aria-hidden="true" size={19} /> : <Moon aria-hidden="true" size={19} />}
       </Button>
+        <AccountActions language={language} user={user} onSignIn={onSignIn} onSuggest={onSuggest} onSignOut={onSignOut} />
+      </div>
     </nav>
+  );
+}
+
+function AppFooter() {
+  return (
+    <footer className="border-t border-border bg-card px-4 py-6 text-center text-sm text-muted-foreground">
+      <a
+        href="https://lauranotfound.github.io/DePortada/"
+        target="_blank"
+        rel="noreferrer"
+        className="font-semibold transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
+        © LauraNotFound🍄 2026
+      </a>
+    </footer>
   );
 }

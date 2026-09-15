@@ -1,5 +1,5 @@
 import type { User } from "@supabase/supabase-js";
-import { LogIn, LogOut, MessageSquarePlus } from "lucide-react";
+import { CircleUserRound, MessageSquarePlus } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
 
@@ -163,22 +163,30 @@ export function AccountActions({
 }) {
   const copy = copyByLanguage[language];
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Button type="button" variant="outline" className="h-9 px-3 text-sm" onClick={onSuggest}>
-        <MessageSquarePlus aria-hidden="true" size={17} />
-        {copy.suggest}
+    <div className="flex items-center gap-1.5">
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="size-10"
+        onClick={onSuggest}
+        aria-label={copy.suggest}
+        title={copy.suggest}
+      >
+        <MessageSquarePlus aria-hidden="true" size={19} />
       </Button>
-      {user ? (
-        <Button type="button" variant="ghost" className="h-9 px-3 text-sm" onClick={onSignOut} title={user.email ?? copy.signOut}>
-          <LogOut aria-hidden="true" size={17} />
-          {copy.signOut}
-        </Button>
-      ) : (
-        <Button type="button" variant="ghost" className="h-9 px-3 text-sm" onClick={onSignIn}>
-          <LogIn aria-hidden="true" size={17} />
-          {copy.signIn}
-        </Button>
-      )}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="relative size-10"
+        onClick={user ? onSignOut : onSignIn}
+        aria-label={user ? copy.signOut : copy.signIn}
+        title={user ? `${copy.signOut}${user.email ? ` · ${user.email}` : ""}` : copy.signIn}
+      >
+        <CircleUserRound aria-hidden="true" size={20} />
+        {user && <span aria-hidden="true" className="absolute right-1.5 top-1.5 size-2 rounded-full border border-background bg-medical" />}
+      </Button>
     </div>
   );
 }
