@@ -378,6 +378,8 @@ function Index() {
   };
 
   const handleSignOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
     await supabase.auth.signOut();
     setSuggestionOpen(false);
   };
