@@ -163,17 +163,17 @@ export function AccountActions({
   const copy = copyByLanguage[language];
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Button type="button" variant="outline" size="sm" onClick={onSuggest}>
+      <Button type="button" variant="outline" className="h-9 px-3 text-sm" onClick={onSuggest}>
         <MessageSquarePlus aria-hidden="true" size={17} />
         {copy.suggest}
       </Button>
       {user ? (
-        <Button type="button" variant="ghost" size="sm" onClick={onSignOut} title={user.email ?? copy.signOut}>
+        <Button type="button" variant="ghost" className="h-9 px-3 text-sm" onClick={onSignOut} title={user.email ?? copy.signOut}>
           <LogOut aria-hidden="true" size={17} />
           {copy.signOut}
         </Button>
       ) : (
-        <Button type="button" variant="ghost" size="sm" onClick={onSignIn}>
+        <Button type="button" variant="ghost" className="h-9 px-3 text-sm" onClick={onSignIn}>
           <LogIn aria-hidden="true" size={17} />
           {copy.signIn}
         </Button>
@@ -295,7 +295,7 @@ export function SuggestionDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   categories: CategoryOption[];
-  defaultCategory?: SuggestionCategory;
+  defaultCategory?: SuggestionCategory | undefined;
 }) {
   const copy = copyByLanguage[language];
   const [category, setCategory] = useState<SuggestionCategory | "">(defaultCategory ?? "");
