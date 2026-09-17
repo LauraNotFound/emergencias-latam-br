@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 type PhraseActionsProps = {
   phrase: string;
-  language: "es" | "en";
+  language: "es" | "pt";
   compact?: boolean;
 };
 
@@ -16,10 +16,10 @@ const actionCopy = {
     speaking: "Reproduciendo",
     translate: "Traducir en Google Translate",
   },
-  en: {
-    listen: "Listen in Portuguese",
-    speaking: "Playing",
-    translate: "Translate in Google Translate",
+  pt: {
+    listen: "Ouvir em português",
+    speaking: "Reproduzindo",
+    translate: "Traduzir no Google Tradutor",
   },
 };
 
