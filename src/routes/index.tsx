@@ -263,7 +263,7 @@ function Index() {
 
     return (
       <main className="min-h-screen bg-background">
-        <div className="mx-auto w-full max-w-2xl px-4 pb-8 pt-4 sm:px-6 sm:pt-8">
+        <div className="mx-auto w-full max-w-5xl px-4 pb-8 pt-4 sm:px-6 sm:pt-8 lg:px-8">
           {navbar}
           <Button variant="ghost" className="-ml-3 mt-4" onClick={() => setSelectedId(null)} aria-label={copy.backLabel}><ArrowLeft aria-hidden="true" size={20} />{copy.back}</Button>
           <header className="mt-5 flex items-start gap-4">
@@ -299,13 +299,13 @@ function Index() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="mx-auto w-full max-w-4xl px-4 pb-8 pt-4 sm:px-6 sm:pt-8">
+      <div className="mx-auto w-full max-w-7xl px-4 pb-8 pt-4 sm:px-6 sm:pt-8 lg:px-8">
         {navbar}
         <header className="pb-7 pt-8 sm:pb-9 sm:pt-12"><p className="text-sm font-bold text-primary">{copy.practicalHelp}</p><h1 className="mt-2 text-4xl font-bold text-foreground sm:text-5xl">Pronto</h1><p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">{copy.intro}</p></header>
         <aside className="mb-7 rounded-lg border border-emergency/25 bg-emergency-soft px-4 py-3 text-sm font-medium text-foreground" aria-label="Emergencia"><ShieldAlert aria-hidden="true" className="mr-2 inline text-emergency" size={18} />{copy.emergency}</aside>
-        <section aria-labelledby="categories-heading"><h2 id="categories-heading" className="mb-4 text-lg font-bold text-foreground">{copy.categories}</h2><div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          {categories.map((category) => { const Icon = category.icon; return <button key={category.id} type="button" onClick={() => openCategory(category.id)} className="group flex min-h-44 flex-col rounded-lg border bg-card p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-            <span className={cn("flex size-11 items-center justify-center rounded-lg border", colorStyles[category.color])}><Icon aria-hidden="true" size={23} /></span><span className="mt-4 text-base font-bold leading-tight text-card-foreground">{language === "es" ? category.titleES : category.titlePT}</span><span className="mt-1 text-xs leading-relaxed text-muted-foreground">{language === "es" ? category.descriptionES : category.descriptionPT}</span><span className="mt-auto flex items-center gap-1 pt-3 text-xs font-bold text-primary">{copy.view}<ChevronRight aria-hidden="true" size={15} /></span>
+        <section aria-labelledby="categories-heading"><h2 id="categories-heading" className="mb-4 text-lg font-bold text-foreground">{copy.categories}</h2><div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8">
+          {categories.map((category) => { const Icon = category.icon; return <button key={category.id} type="button" onClick={() => openCategory(category.id)} className="group flex min-h-44 w-full min-w-0 flex-col rounded-lg border bg-card p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:min-h-48">
+            <span className={cn("flex size-11 shrink-0 items-center justify-center rounded-lg border", colorStyles[category.color])}><Icon aria-hidden="true" size={23} /></span><span className="mt-4 text-base font-bold leading-tight text-card-foreground">{language === "es" ? category.titleES : category.titlePT}</span><span className="mt-1 text-xs leading-relaxed text-muted-foreground">{language === "es" ? category.descriptionES : category.descriptionPT}</span><span className="mt-auto flex items-center gap-1 pt-3 text-xs font-bold text-primary">{copy.view}<ChevronRight aria-hidden="true" size={15} /></span>
           </button>; })}
         </div></section>
         <AppFooter />
