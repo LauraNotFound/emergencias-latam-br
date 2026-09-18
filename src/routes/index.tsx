@@ -271,7 +271,7 @@ function Index() {
             <div className="min-w-0 pt-0.5"><p className="text-sm font-medium text-muted-foreground">{copy.guide}</p><h1 className="mt-1 text-2xl font-bold leading-tight text-foreground sm:text-3xl">{title}</h1></div>
           </header>
           <Button asChild size="wide" variant={selected.color === "emergency" ? "emergency" : "default"} className="mt-7">
-            <a href={mapsUrl} target="_blank" rel="noreferrer"><MapPin aria-hidden="true" size={20} />{copy.search} {language === "es" ? selected.shortES : selected.shortPT} {copy.nearby}<ExternalLink aria-hidden="true" className="ml-auto" size={17} /></a>
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer"><MapPin aria-hidden="true" size={20} />{copy.search} {language === "es" ? selected.shortES : selected.shortPT} {copy.nearby}<ExternalLink aria-hidden="true" className="ml-auto" size={17} /></a>
           </Button>
           <section className="mt-8" aria-labelledby="steps-heading">
             <div className="mb-4 flex items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase text-primary">{copy.useful}</p><h2 id="steps-heading" className="mt-1 text-xl font-bold text-foreground">{copy.follow}</h2></div><p className="shrink-0 text-sm font-medium text-muted-foreground" aria-live="polite">{completedCount} {copy.joiner} {selected.steps.length}</p></div>
