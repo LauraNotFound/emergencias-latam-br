@@ -28,25 +28,30 @@ import { PhraseSuggestionDialog } from "@/components/phrase-suggestion-dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type Language = "es" | "pt";
+type Language = "es" | "pt" | "en";
 type Color = "medical" | "emergency" | "document" | "bank";
 
 type Step = {
   id: string;
   phaseES: string;
   phasePT: string;
+  phaseEN: string;
   phraseES: string;
   phrasePT: string;
+  phraseEN: string;
 };
 
 type Category = {
   id: string;
   titleES: string;
   titlePT: string;
+  titleEN: string;
   shortES: string;
   shortPT: string;
+  shortEN: string;
   descriptionES: string;
   descriptionPT: string;
+  descriptionEN: string;
   icon: LucideIcon;
   color: Color;
   mapSearchQuery: string;
