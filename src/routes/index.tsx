@@ -4,6 +4,7 @@ import {
   Building2,
   BusFront,
   Check,
+  ChevronDown,
   ChevronRight,
   ExternalLink,
   HeartPulse,
@@ -26,6 +27,14 @@ import { useEffect, useState } from "react";
 import { PhraseActions } from "@/components/phrase-actions";
 import { PhraseSuggestionDialog } from "@/components/phrase-suggestion-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 type Language = "es" | "pt" | "en";
@@ -577,12 +586,16 @@ const interfaceCopy = {
   },
 };
 
-const languageOrder: Language[] = ["es", "pt", "en"];
+const languageNames: Record<Language, string> = {
+  es: "Español",
+  pt: "Português",
+  en: "English",
+};
 
-const languageNames: Record<Language, Record<Language, string>> = {
-  es: { es: "español", pt: "portugués", en: "inglés" },
-  pt: { es: "espanhol", pt: "português", en: "inglês" },
-  en: { es: "Spanish", pt: "Portuguese", en: "English" },
+const languageMenuLabels: Record<Language, string> = {
+  es: "Elegir idioma",
+  pt: "Escolher idioma",
+  en: "Choose language",
 };
 
 const getCategoryTitle = (category: Category, language: Language) =>
@@ -635,14 +648,6 @@ function Index() {
   const [suggestionOpen, setSuggestionOpen] = useState(false);
   const selected = categories.find((category) => category.id === selectedId);
   const copy = interfaceCopy[language];
-  const currentLanguageIndex = languageOrder.indexOf(language);
-  const nextLanguage = languageOrder[(currentLanguageIndex + 1) % languageOrder.length] ?? "es";
-  const languageLabel =
-    language === "en"
-      ? `Change language to ${languageNames[language][nextLanguage]}`
-      : language === "pt"
-        ? `Mudar idioma para ${languageNames[language][nextLanguage]}`
-        : `Cambiar idioma a ${languageNames[language][nextLanguage]}`;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -738,22 +743,39 @@ function Index() {
         >
           {isDark ? <Sun aria-hidden="true" size={20} /> : <Moon aria-hidden="true" size={20} />}
         </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-10 gap-1.5 px-2.5"
-          onClick={() =>
-            setLanguage((value) => {
-              const currentIndex = languageOrder.indexOf(value);
-              return languageOrder[(currentIndex + 1) % languageOrder.length] ?? "es";
-            })
-          }
-          aria-label={languageLabel}
-          title={languageLabel}
-        >
-          <Languages aria-hidden="true" size={20} />
-          <span className="text-xs font-bold">{language.toUpperCase()}</span>
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-10 gap-1 px-2.5"
+              aria-label={languageMenuLabels[language]}
+              title={languageMenuLabels[language]}
+            >
+              <Languages aria-hidden="true" size={20} />
+              <span className="text-xs font-bold">{language.toUpperCase()}</span>
+              <ChevronDown aria-hidden="true" className="size-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-40">
+            <DropdownMenuLabel>{languageMenuLabels[language]}</DropdownMenuLabel>
+            <DropdownMenuRadioGroup
+              value={language}
+              onValueChange={(value) => {
+                if (value === "es" || value === "pt" || value === "en") setLanguage(value);
+              }}
+            >
+              {(["es", "pt", "en"] as const).map((languageOption) => (
+                <DropdownMenuRadioItem key={languageOption} value={languageOption}>
+                  <span className="flex-1">{languageNames[languageOption]}</span>
+                  <span className="text-xs font-bold text-muted-foreground">
+                    {languageOption.toUpperCase()}
+                  </span>
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </nav>
   );

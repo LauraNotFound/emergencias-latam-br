@@ -7,3 +7,4 @@
 - [x] Load approved Google Script phrases into matching guides without blocking startup.
 - [x] Verify approved phrase rendering, persistence, completion, and reset behavior.
 - [x] Add and verify English throughout the interface, categories, phrase actions, and suggestion form.
+- [x] Replace the language cycle button with an accessible ES/PT/EN dropdown.
