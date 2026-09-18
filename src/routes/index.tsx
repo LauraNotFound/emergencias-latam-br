@@ -154,12 +154,12 @@ const normalizeCategoryName = (value: string) => value
 const isApprovedPhrase = (value: unknown): value is ApprovedPhrase => {
   if (!value || typeof value !== "object") return false;
   const phrase = value as Record<string, unknown>;
-  return typeof phrase.categoria === "string"
-    && typeof phrase.fraseES === "string"
-    && typeof phrase.frasePT === "string"
-    && phrase.categoria.trim().length > 0
-    && phrase.fraseES.trim().length > 0
-    && phrase.frasePT.trim().length > 0;
+  return typeof phrase["categoria"] === "string"
+    && typeof phrase["fraseES"] === "string"
+    && typeof phrase["frasePT"] === "string"
+    && phrase["categoria"].trim().length > 0
+    && phrase["fraseES"].trim().length > 0
+    && phrase["frasePT"].trim().length > 0;
 };
 
 const createDynamicStepId = (categoryId: string, phraseES: string, phrasePT: string) => {
