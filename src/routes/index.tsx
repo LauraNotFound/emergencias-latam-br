@@ -437,6 +437,7 @@ const isApprovedPhrase = (value: unknown): value is ApprovedPhrase => {
     typeof phrase["categoria"] === "string" &&
     typeof phrase["fraseES"] === "string" &&
     typeof phrase["frasePT"] === "string" &&
+    (phrase["fraseEN"] === undefined || typeof phrase["fraseEN"] === "string") &&
     phrase["categoria"].trim().length > 0 &&
     phrase["fraseES"].trim().length > 0 &&
     phrase["frasePT"].trim().length > 0
@@ -578,6 +579,12 @@ const interfaceCopy = {
 
 const languageOrder: Language[] = ["es", "pt", "en"];
 
+const languageNames: Record<Language, Record<Language, string>> = {
+  es: { es: "español", pt: "portugués", en: "inglés" },
+  pt: { es: "espanhol", pt: "português", en: "inglês" },
+  en: { es: "Spanish", pt: "Portuguese", en: "English" },
+};
+
 const getCategoryTitle = (category: Category, language: Language) =>
   language === "es" ? category.titleES : language === "pt" ? category.titlePT : category.titleEN;
 
@@ -628,6 +635,14 @@ function Index() {
   const [suggestionOpen, setSuggestionOpen] = useState(false);
   const selected = categories.find((category) => category.id === selectedId);
   const copy = interfaceCopy[language];
+  const currentLanguageIndex = languageOrder.indexOf(language);
+  const nextLanguage = languageOrder[(currentLanguageIndex + 1) % languageOrder.length] ?? "es";
+  const languageLabel =
+    language === "en"
+      ? `Change language to ${languageNames[language][nextLanguage]}`
+      : language === "pt"
+        ? `Mudar idioma para ${languageNames[language][nextLanguage]}`
+        : `Cambiar idioma a ${languageNames[language][nextLanguage]}`;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -733,8 +748,8 @@ function Index() {
               return languageOrder[(currentIndex + 1) % languageOrder.length] ?? "es";
             })
           }
-          aria-label={copy.language}
-          title={copy.language}
+          aria-label={languageLabel}
+          title={languageLabel}
         >
           <Languages aria-hidden="true" size={20} />
           <span className="text-xs font-bold">{language.toUpperCase()}</span>
