@@ -4,3 +4,5 @@
 - [x] Remove regenerated account and backend integration files.
 - [x] Implement the trilingual Google Script suggestion form.
 - [x] Verify submission feedback, mobile/desktop layout, persistence, and reset behavior.
+- [x] Load approved Google Script phrases into matching guides without blocking startup.
+- [ ] Verify approved phrase rendering, persistence, completion, and reset behavior.
