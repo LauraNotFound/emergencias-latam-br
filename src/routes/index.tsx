@@ -54,7 +54,15 @@ type Category = {
   steps: Step[];
 };
 
-const categories: Category[] = [
+type ApprovedPhrase = {
+  categoria: string;
+  fraseES: string;
+  frasePT: string;
+};
+
+const APPROVED_PHRASES_URL = "https://script.google.com/macros/s/AKfycbyYSkmYIEGJH43VRGpFvN3p6q4SNFVSa7IqS_B4KAiYYNFwUbNY70-OcXQqfWPi53G5/exec";
+
+const staticCategories: Category[] = [
   {
     id: "salud", titleES: "Salud", titlePT: "Saúde", shortES: "hospital", shortPT: "hospital",
     descriptionES: "Atención médica y farmacias", descriptionPT: "Atendimento médico e farmácias",
@@ -137,6 +145,65 @@ const categories: Category[] = [
   },
 ];
 
+const normalizeCategoryName = (value: string) => value
+  .trim()
+  .toLocaleLowerCase()
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "");
+
+const isApprovedPhrase = (value: unknown): value is ApprovedPhrase => {
+  if (!value || typeof value !== "object") return false;
+  const phrase = value as Record<string, unknown>;
+  return typeof phrase["categoria"] === "string"
+    && typeof phrase["fraseES"] === "string"
+    && typeof phrase["frasePT"] === "string"
+    && phrase["categoria"].trim().length > 0
+    && phrase["fraseES"].trim().length > 0
+    && phrase["frasePT"].trim().length > 0;
+};
+
+const createDynamicStepId = (categoryId: string, phraseES: string, phrasePT: string) => {
+  const source = `${categoryId}\u0000${phraseES.trim()}\u0000${phrasePT.trim()}`;
+  let hash = 2166136261;
+  for (let index = 0; index < source.length; index += 1) {
+    hash ^= source.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `dynamic-${categoryId}-${(hash >>> 0).toString(36)}`;
+};
+
+const appendApprovedPhrases = (currentCategories: Category[], values: unknown[]) => {
+  const stepsByCategory = new Map<string, Step[]>();
+
+  values.filter(isApprovedPhrase).forEach((phrase) => {
+    const categoryName = normalizeCategoryName(phrase.categoria);
+    const category = currentCategories.find((candidate) => [candidate.id, candidate.titleES, candidate.titlePT]
+      .some((name) => normalizeCategoryName(name) === categoryName));
+    if (!category) return;
+
+    const phraseES = phrase.fraseES.trim();
+    const phrasePT = phrase.frasePT.trim();
+    const dynamicStep: Step = {
+      id: createDynamicStepId(category.id, phraseES, phrasePT),
+      phaseES: "Comunidad",
+      phasePT: "Comunidade",
+      phraseES,
+      phrasePT,
+    };
+    const pendingSteps = stepsByCategory.get(category.id) ?? [];
+    const isDuplicate = [...category.steps, ...pendingSteps].some((step) => step.id === dynamicStep.id
+      || (normalizeCategoryName(step.phraseES) === normalizeCategoryName(phraseES)
+        && normalizeCategoryName(step.phrasePT) === normalizeCategoryName(phrasePT)));
+    if (!isDuplicate) stepsByCategory.set(category.id, [...pendingSteps, dynamicStep]);
+  });
+
+  if (stepsByCategory.size === 0) return currentCategories;
+  return currentCategories.map((category) => {
+    const approvedSteps = stepsByCategory.get(category.id);
+    return approvedSteps ? { ...category, steps: [...category.steps, ...approvedSteps] } : category;
+  });
+};
+
 const colorStyles: Record<Color, string> = {
   medical: "bg-medical-soft text-medical border-medical/20",
   emergency: "bg-emergency-soft text-emergency border-emergency/20",
@@ -178,6 +245,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const [categories, setCategories] = useState<Category[]>(staticCategories);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [language, setLanguage] = useState<Language>("es");
@@ -187,6 +255,25 @@ function Index() {
   const [suggestionOpen, setSuggestionOpen] = useState(false);
   const selected = categories.find((category) => category.id === selectedId);
   const copy = interfaceCopy[language];
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    void fetch(APPROVED_PHRASES_URL, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error("Approved phrases request failed");
+        return response.json() as Promise<unknown>;
+      })
+      .then((payload) => {
+        if (!Array.isArray(payload)) return;
+        setCategories((current) => appendApprovedPhrases(current, payload));
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      });
+
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
