@@ -62,6 +62,7 @@ type ApprovedPhrase = {
   categoria: string;
   fraseES: string;
   frasePT: string;
+  fraseEN?: string | undefined;
 };
 
 const APPROVED_PHRASES_URL =
@@ -458,7 +459,7 @@ const appendApprovedPhrases = (currentCategories: Category[], values: unknown[])
   values.filter(isApprovedPhrase).forEach((phrase) => {
     const categoryName = normalizeCategoryName(phrase.categoria);
     const category = currentCategories.find((candidate) =>
-      [candidate.id, candidate.titleES, candidate.titlePT].some(
+      [candidate.id, candidate.titleES, candidate.titlePT, candidate.titleEN].some(
         (name) => normalizeCategoryName(name) === categoryName,
       ),
     );
@@ -466,12 +467,15 @@ const appendApprovedPhrases = (currentCategories: Category[], values: unknown[])
 
     const phraseES = phrase.fraseES.trim();
     const phrasePT = phrase.frasePT.trim();
+    const phraseEN = phrase.fraseEN?.trim() || phraseES;
     const dynamicStep: Step = {
       id: createDynamicStepId(category.id, phraseES, phrasePT),
       phaseES: "Comunidad",
       phasePT: "Comunidade",
+      phaseEN: "Community",
       phraseES,
       phrasePT,
+      phraseEN,
     };
     const pendingSteps = stepsByCategory.get(category.id) ?? [];
     const isDuplicate = [...category.steps, ...pendingSteps].some(
@@ -546,7 +550,52 @@ const interfaceCopy = {
     light: "Ativar modo claro",
     language: "Mudar idioma para espanhol",
   },
+  en: {
+    practicalHelp: "Practical help for foreigners in Brazil",
+    intro: "Choose what you need and carry these useful Portuguese phrases with you.",
+    categories: "Help categories",
+    view: "View guide",
+    emergency: "Immediate emergency: call 192 (ambulance) or 190 (police).",
+    back: "Back",
+    backLabel: "Back to menu",
+    guide: "Step-by-step guide",
+    search: "Find a nearby",
+    nearby: "",
+    useful: "Useful phrases",
+    follow: "Follow these steps",
+    joiner: "of",
+    complete: "Mark as complete",
+    pending: "Mark as pending",
+    doneTitle: "All done!",
+    doneText: "You completed every step in this guide.",
+    clear: "Clear all",
+    suggest: "Suggest a phrase",
+    dark: "Turn on dark mode",
+    light: "Turn on light mode",
+    language: "Change language to Spanish",
+  },
 };
+
+const languageOrder: Language[] = ["es", "pt", "en"];
+
+const getCategoryTitle = (category: Category, language: Language) =>
+  language === "es" ? category.titleES : language === "pt" ? category.titlePT : category.titleEN;
+
+const getCategoryShort = (category: Category, language: Language) =>
+  language === "es" ? category.shortES : language === "pt" ? category.shortPT : category.shortEN;
+
+const getCategoryDescription = (category: Category, language: Language) =>
+  language === "es"
+    ? category.descriptionES
+    : language === "pt"
+      ? category.descriptionPT
+      : category.descriptionEN;
+
+const getStepPhase = (step: Step, language: Language) =>
+  language === "es" ? step.phaseES : language === "pt" ? step.phasePT : step.phaseEN;
+
+const getStepTranslation = (step: Step, language: Language) =>
+  language === "es" ? step.phraseES : language === "pt" ? step.phrasePT : step.phraseEN;
 
 const STORAGE_PREFIX = "pronto-checklist-v1:";
 
@@ -601,7 +650,7 @@ function Index() {
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
-    document.documentElement.lang = language === "es" ? "es" : "pt-BR";
+    document.documentElement.lang = language === "pt" ? "pt-BR" : language;
   }, [isDark, language]);
 
   useEffect(() => {
@@ -678,7 +727,12 @@ function Index() {
           type="button"
           variant="ghost"
           className="h-10 gap-1.5 px-2.5"
-          onClick={() => setLanguage((value) => (value === "es" ? "pt" : "es"))}
+          onClick={() =>
+            setLanguage((value) => {
+              const currentIndex = languageOrder.indexOf(value);
+              return languageOrder[(currentIndex + 1) % languageOrder.length] ?? "es";
+            })
+          }
           aria-label={copy.language}
           title={copy.language}
         >
@@ -694,7 +748,7 @@ function Index() {
     const completedCount = selected.steps.filter((step) => completed[step.id]).length;
     const allComplete = completedCount === selected.steps.length;
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selected.mapSearchQuery)}`;
-    const title = language === "es" ? selected.titleES : selected.titlePT;
+    const title = getCategoryTitle(selected, language);
 
     return (
       <main className="min-h-screen bg-background">
@@ -733,7 +787,7 @@ function Index() {
           >
             <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
               <MapPin aria-hidden="true" size={20} />
-              {copy.search} {language === "es" ? selected.shortES : selected.shortPT} {copy.nearby}
+              {copy.search} {getCategoryShort(selected, language)} {copy.nearby}
               <ExternalLink aria-hidden="true" className="ml-auto" size={17} />
             </a>
           </Button>
@@ -792,7 +846,7 @@ function Index() {
                     </Button>
                     <div className="min-w-0 flex-1">
                       <span className="inline-flex rounded-md bg-muted px-2 py-1 text-xs font-bold text-muted-foreground">
-                        {index + 1} · {language === "es" ? step.phaseES : step.phasePT}
+                        {index + 1} · {getStepPhase(step, language)}
                       </span>
                       <p
                         className={cn(
@@ -808,7 +862,7 @@ function Index() {
                           isComplete && "line-through",
                         )}
                       >
-                        {step.phraseES}
+                        {getStepTranslation(step, language)}
                       </p>
                       <PhraseActions phrase={step.phrasePT} language={language} compact />
                     </div>
@@ -886,10 +940,10 @@ function Index() {
                     <Icon aria-hidden="true" size={23} />
                   </span>
                   <span className="mt-4 text-base font-bold leading-tight text-card-foreground">
-                    {language === "es" ? category.titleES : category.titlePT}
+                     {getCategoryTitle(category, language)}
                   </span>
                   <span className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    {language === "es" ? category.descriptionES : category.descriptionPT}
+                     {getCategoryDescription(category, language)}
                   </span>
                   <span className="mt-auto flex items-center gap-1 pt-3 text-xs font-bold text-primary">
                     {copy.view}
