@@ -28,25 +28,30 @@ import { PhraseSuggestionDialog } from "@/components/phrase-suggestion-dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type Language = "es" | "pt";
+type Language = "es" | "pt" | "en";
 type Color = "medical" | "emergency" | "document" | "bank";
 
 type Step = {
   id: string;
   phaseES: string;
   phasePT: string;
+  phaseEN: string;
   phraseES: string;
   phrasePT: string;
+  phraseEN: string;
 };
 
 type Category = {
   id: string;
   titleES: string;
   titlePT: string;
+  titleEN: string;
   shortES: string;
   shortPT: string;
+  shortEN: string;
   descriptionES: string;
   descriptionPT: string;
+  descriptionEN: string;
   icon: LucideIcon;
   color: Color;
   mapSearchQuery: string;
@@ -57,6 +62,7 @@ type ApprovedPhrase = {
   categoria: string;
   fraseES: string;
   frasePT: string;
+  fraseEN?: string | undefined;
 };
 
 const APPROVED_PHRASES_URL =
@@ -67,10 +73,13 @@ const staticCategories: Category[] = [
     id: "salud",
     titleES: "Salud",
     titlePT: "Saúde",
+    titleEN: "Health",
     shortES: "hospital",
     shortPT: "hospital",
+    shortEN: "hospital",
     descriptionES: "Atención médica y farmacias",
     descriptionPT: "Atendimento médico e farmácias",
+    descriptionEN: "Medical care and pharmacies",
     icon: HeartPulse,
     color: "medical",
     mapSearchQuery: "hospital",
@@ -79,22 +88,28 @@ const staticCategories: Category[] = [
         id: "salud-1",
         phaseES: "Recepción",
         phasePT: "Recepção",
+        phaseEN: "Reception",
         phraseES: "¿Dónde puedo recibir atención médica?",
         phrasePT: "Onde posso receber atendimento médico?",
+        phraseEN: "Where can I receive medical care?",
       },
       {
         id: "salud-2",
         phaseES: "Triaje",
         phasePT: "Triagem",
+        phaseEN: "Triage",
         phraseES: "Tengo dolor aquí y necesito atención urgente.",
         phrasePT: "Estou com dor aqui e preciso de atendimento urgente.",
+        phraseEN: "I have pain here and need urgent care.",
       },
       {
         id: "salud-3",
         phaseES: "Medicamentos",
         phasePT: "Medicamentos",
+        phaseEN: "Medication",
         phraseES: "¿Dónde está la farmacia más cercana?",
         phrasePT: "Onde fica a farmácia mais próxima?",
+        phraseEN: "Where is the nearest pharmacy?",
       },
     ],
   },
@@ -102,10 +117,13 @@ const staticCategories: Category[] = [
     id: "policia",
     titleES: "Policía/Denuncias",
     titlePT: "Polícia/Denúncias",
+    titleEN: "Police/Reports",
     shortES: "comisaría",
     shortPT: "delegacia",
+    shortEN: "police station",
     descriptionES: "Emergencias y denuncias",
     descriptionPT: "Emergências e boletins de ocorrência",
+    descriptionEN: "Emergencies and police reports",
     icon: ShieldAlert,
     color: "emergency",
     mapSearchQuery: "delegacia de policia",
@@ -114,22 +132,28 @@ const staticCategories: Category[] = [
         id: "policia-1",
         phaseES: "Llegada",
         phasePT: "Chegada",
+        phaseEN: "Arrival",
         phraseES: "Necesito presentar una denuncia policial.",
         phrasePT: "Preciso registrar um boletim de ocorrência.",
+        phraseEN: "I need to file a police report.",
       },
       {
         id: "policia-2",
         phaseES: "Relato",
         phasePT: "Relato",
+        phaseEN: "Statement",
         phraseES: "Esto ocurrió hoy en esta dirección.",
         phrasePT: "Isso aconteceu hoje neste endereço.",
+        phraseEN: "This happened today at this address.",
       },
       {
         id: "policia-3",
         phaseES: "Comprobante",
         phasePT: "Comprovante",
+        phaseEN: "Copy",
         phraseES: "¿Puedo recibir una copia de la denuncia?",
         phrasePT: "Posso receber uma cópia do boletim de ocorrência?",
+        phraseEN: "Can I receive a copy of the police report?",
       },
     ],
   },
@@ -137,10 +161,13 @@ const staticCategories: Category[] = [
     id: "registro",
     titleES: "Registro Migratorio",
     titlePT: "Registro Migratório",
+    titleEN: "Immigration Registration",
     shortES: "Policía Federal",
     shortPT: "Polícia Federal",
+    shortEN: "Federal Police",
     descriptionES: "Trámites migratorios esenciales",
     descriptionPT: "Procedimentos migratórios essenciais",
+    descriptionEN: "Essential immigration procedures",
     icon: Building2,
     color: "document",
     mapSearchQuery: "policia federal",
@@ -149,22 +176,28 @@ const staticCategories: Category[] = [
         id: "registro-1",
         phaseES: "Información",
         phasePT: "Informações",
+        phaseEN: "Information",
         phraseES: "Necesito hacer mi registro migratorio.",
         phrasePT: "Preciso fazer meu registro migratório.",
+        phraseEN: "I need to complete my immigration registration.",
       },
       {
         id: "registro-2",
         phaseES: "Cita",
         phasePT: "Agendamento",
+        phaseEN: "Appointment",
         phraseES: "Tengo una cita. ¿Dónde debo esperar?",
         phrasePT: "Tenho um agendamento. Onde devo aguardar?",
+        phraseEN: "I have an appointment. Where should I wait?",
       },
       {
         id: "registro-3",
         phaseES: "Seguimiento",
         phasePT: "Acompanhamento",
+        phaseEN: "Follow-up",
         phraseES: "¿Cómo consulto el estado de mi solicitud?",
         phrasePT: "Como posso acompanhar o andamento do pedido?",
+        phraseEN: "How can I track my application status?",
       },
     ],
   },
@@ -172,10 +205,13 @@ const staticCategories: Category[] = [
     id: "bancos",
     titleES: "Bancos",
     titlePT: "Bancos",
+    titleEN: "Banks",
     shortES: "banco",
     shortPT: "banco",
+    shortEN: "bank",
     descriptionES: "Cuenta, tarjeta y atención",
     descriptionPT: "Conta, cartão e atendimento",
+    descriptionEN: "Accounts, cards, and support",
     icon: Landmark,
     color: "bank",
     mapSearchQuery: "banco",
@@ -184,22 +220,28 @@ const staticCategories: Category[] = [
         id: "bancos-1",
         phaseES: "Recepción",
         phasePT: "Recepção",
+        phaseEN: "Reception",
         phraseES: "Quisiera abrir una cuenta bancaria.",
         phrasePT: "Gostaria de abrir uma conta bancária.",
+        phraseEN: "I would like to open a bank account.",
       },
       {
         id: "bancos-2",
         phaseES: "Requisitos",
         phasePT: "Requisitos",
+        phaseEN: "Requirements",
         phraseES: "¿Qué documentos necesitan los extranjeros?",
         phrasePT: "Quais documentos são necessários para estrangeiros?",
+        phraseEN: "Which documents do foreigners need?",
       },
       {
         id: "bancos-3",
         phaseES: "Seguridad",
         phasePT: "Segurança",
+        phaseEN: "Security",
         phraseES: "No reconozco esta transacción.",
         phrasePT: "Não reconheço esta transação.",
+        phraseEN: "I do not recognize this transaction.",
       },
     ],
   },
@@ -207,10 +249,13 @@ const staticCategories: Category[] = [
     id: "restaurantes",
     titleES: "Restaurantes",
     titlePT: "Restaurantes",
+    titleEN: "Restaurants",
     shortES: "restaurante",
     shortPT: "restaurante",
+    shortEN: "restaurant",
     descriptionES: "Pedir, consultar y pagar",
     descriptionPT: "Pedir, perguntar e pagar",
+    descriptionEN: "Ordering, questions, and payment",
     icon: Store,
     color: "bank",
     mapSearchQuery: "restaurante",
@@ -219,22 +264,28 @@ const staticCategories: Category[] = [
         id: "restaurantes-1",
         phaseES: "Entrada",
         phasePT: "Entrada",
+        phaseEN: "Arrival",
         phraseES: "¿Hay una mesa disponible para dos personas?",
         phrasePT: "Tem uma mesa disponível para duas pessoas?",
+        phraseEN: "Is there a table available for two people?",
       },
       {
         id: "restaurantes-2",
         phaseES: "Pedido",
         phasePT: "Pedido",
+        phaseEN: "Order",
         phraseES: "¿Este plato contiene carne o frutos secos?",
         phrasePT: "Este prato contém carne ou castanhas?",
+        phraseEN: "Does this dish contain meat or nuts?",
       },
       {
         id: "restaurantes-3",
         phaseES: "Pago",
         phasePT: "Pagamento",
+        phaseEN: "Payment",
         phraseES: "La cuenta, por favor. ¿Puedo pagar con tarjeta?",
         phrasePT: "A conta, por favor. Posso pagar com cartão?",
+        phraseEN: "The check, please. Can I pay by card?",
       },
     ],
   },
@@ -242,10 +293,13 @@ const staticCategories: Category[] = [
     id: "transporte",
     titleES: "Transporte Público",
     titlePT: "Transporte Público",
+    titleEN: "Public Transportation",
     shortES: "transporte público",
     shortPT: "transporte público",
+    shortEN: "public transportation",
     descriptionES: "Metro, autobús y trayectos",
     descriptionPT: "Metrô, ônibus e trajetos",
+    descriptionEN: "Metro, buses, and routes",
     icon: BusFront,
     color: "document",
     mapSearchQuery: "metro ou onibus",
@@ -254,22 +308,28 @@ const staticCategories: Category[] = [
         id: "transporte-1",
         phaseES: "Ruta",
         phasePT: "Rota",
+        phaseEN: "Route",
         phraseES: "¿Qué autobús va al centro?",
         phrasePT: "Qual ônibus vai para o centro?",
+        phraseEN: "Which bus goes downtown?",
       },
       {
         id: "transporte-2",
         phaseES: "Billete",
         phasePT: "Bilhete",
+        phaseEN: "Ticket",
         phraseES: "¿Dónde puedo comprar o recargar la tarjeta?",
         phrasePT: "Onde posso comprar ou recarregar o cartão?",
+        phraseEN: "Where can I buy or top up the card?",
       },
       {
         id: "transporte-3",
         phaseES: "Destino",
         phasePT: "Destino",
+        phaseEN: "Destination",
         phraseES: "¿Puede avisarme cuando llegue a esta parada?",
         phrasePT: "Pode me avisar quando chegar neste ponto?",
+        phraseEN: "Can you tell me when we reach this stop?",
       },
     ],
   },
@@ -277,10 +337,13 @@ const staticCategories: Category[] = [
     id: "supermercado",
     titleES: "Supermercado",
     titlePT: "Supermercado",
+    titleEN: "Supermarket",
     shortES: "supermercado",
     shortPT: "supermercado",
+    shortEN: "supermarket",
     descriptionES: "Compras y productos básicos",
     descriptionPT: "Compras e produtos básicos",
+    descriptionEN: "Groceries and essentials",
     icon: ShoppingBasket,
     color: "medical",
     mapSearchQuery: "supermercado",
@@ -289,22 +352,28 @@ const staticCategories: Category[] = [
         id: "supermercado-1",
         phaseES: "Producto",
         phasePT: "Produto",
+        phaseEN: "Product",
         phraseES: "¿Dónde encuentro agua y alimentos básicos?",
         phrasePT: "Onde encontro água e alimentos básicos?",
+        phraseEN: "Where can I find water and basic food items?",
       },
       {
         id: "supermercado-2",
         phaseES: "Precio",
         phasePT: "Preço",
+        phaseEN: "Price",
         phraseES: "¿Cuál es el precio de este producto?",
         phrasePT: "Qual é o preço deste produto?",
+        phraseEN: "What is the price of this product?",
       },
       {
         id: "supermercado-3",
         phaseES: "Caja",
         phasePT: "Caixa",
+        phaseEN: "Checkout",
         phraseES: "¿Aceptan tarjeta internacional?",
         phrasePT: "Vocês aceitam cartão internacional?",
+        phraseEN: "Do you accept international cards?",
       },
     ],
   },
@@ -312,10 +381,13 @@ const staticCategories: Category[] = [
     id: "telefonia",
     titleES: "Telefonía",
     titlePT: "Telefonia",
+    titleEN: "Mobile Phones",
     shortES: "tienda de telefonía",
     shortPT: "loja de telefonia",
+    shortEN: "mobile phone store",
     descriptionES: "Chip, datos móviles y recargas",
     descriptionPT: "Chip, internet móvel e recargas",
+    descriptionEN: "SIM cards, mobile data, and top-ups",
     icon: Phone,
     color: "emergency",
     mapSearchQuery: "loja de telefonia tim claro vivo",
@@ -324,22 +396,28 @@ const staticCategories: Category[] = [
         id: "telefonia-1",
         phaseES: "Compra",
         phasePT: "Compra",
+        phaseEN: "Purchase",
         phraseES: "Necesito un chip prepago para mi teléfono.",
         phrasePT: "Preciso de um chip pré-pago para o meu celular.",
+        phraseEN: "I need a prepaid SIM card for my phone.",
       },
       {
         id: "telefonia-2",
         phaseES: "Activación",
         phasePT: "Ativação",
+        phaseEN: "Activation",
         phraseES: "¿Pueden ayudarme a activar el chip?",
         phrasePT: "Podem me ajudar a ativar o chip?",
+        phraseEN: "Can you help me activate the SIM card?",
       },
       {
         id: "telefonia-3",
         phaseES: "Recarga",
         phasePT: "Recarga",
+        phaseEN: "Top-up",
         phraseES: "Quiero recargar datos móviles.",
         phrasePT: "Quero fazer uma recarga de internet móvel.",
+        phraseEN: "I want to top up my mobile data.",
       },
     ],
   },
@@ -359,6 +437,7 @@ const isApprovedPhrase = (value: unknown): value is ApprovedPhrase => {
     typeof phrase["categoria"] === "string" &&
     typeof phrase["fraseES"] === "string" &&
     typeof phrase["frasePT"] === "string" &&
+    (phrase["fraseEN"] === undefined || typeof phrase["fraseEN"] === "string") &&
     phrase["categoria"].trim().length > 0 &&
     phrase["fraseES"].trim().length > 0 &&
     phrase["frasePT"].trim().length > 0
@@ -381,7 +460,7 @@ const appendApprovedPhrases = (currentCategories: Category[], values: unknown[])
   values.filter(isApprovedPhrase).forEach((phrase) => {
     const categoryName = normalizeCategoryName(phrase.categoria);
     const category = currentCategories.find((candidate) =>
-      [candidate.id, candidate.titleES, candidate.titlePT].some(
+      [candidate.id, candidate.titleES, candidate.titlePT, candidate.titleEN].some(
         (name) => normalizeCategoryName(name) === categoryName,
       ),
     );
@@ -389,12 +468,15 @@ const appendApprovedPhrases = (currentCategories: Category[], values: unknown[])
 
     const phraseES = phrase.fraseES.trim();
     const phrasePT = phrase.frasePT.trim();
+    const phraseEN = phrase.fraseEN?.trim() || phraseES;
     const dynamicStep: Step = {
       id: createDynamicStepId(category.id, phraseES, phrasePT),
       phaseES: "Comunidad",
       phasePT: "Comunidade",
+      phaseEN: "Community",
       phraseES,
       phrasePT,
+      phraseEN,
     };
     const pendingSteps = stepsByCategory.get(category.id) ?? [];
     const isDuplicate = [...category.steps, ...pendingSteps].some(
@@ -469,7 +551,58 @@ const interfaceCopy = {
     light: "Ativar modo claro",
     language: "Mudar idioma para espanhol",
   },
+  en: {
+    practicalHelp: "Practical help for foreigners in Brazil",
+    intro: "Choose what you need and carry these useful Portuguese phrases with you.",
+    categories: "Help categories",
+    view: "View guide",
+    emergency: "Immediate emergency: call 192 (ambulance) or 190 (police).",
+    back: "Back",
+    backLabel: "Back to menu",
+    guide: "Step-by-step guide",
+    search: "Find a nearby",
+    nearby: "",
+    useful: "Useful phrases",
+    follow: "Follow these steps",
+    joiner: "of",
+    complete: "Mark as complete",
+    pending: "Mark as pending",
+    doneTitle: "All done!",
+    doneText: "You completed every step in this guide.",
+    clear: "Clear all",
+    suggest: "Suggest a phrase",
+    dark: "Turn on dark mode",
+    light: "Turn on light mode",
+    language: "Change language to Spanish",
+  },
 };
+
+const languageOrder: Language[] = ["es", "pt", "en"];
+
+const languageNames: Record<Language, Record<Language, string>> = {
+  es: { es: "español", pt: "portugués", en: "inglés" },
+  pt: { es: "espanhol", pt: "português", en: "inglês" },
+  en: { es: "Spanish", pt: "Portuguese", en: "English" },
+};
+
+const getCategoryTitle = (category: Category, language: Language) =>
+  language === "es" ? category.titleES : language === "pt" ? category.titlePT : category.titleEN;
+
+const getCategoryShort = (category: Category, language: Language) =>
+  language === "es" ? category.shortES : language === "pt" ? category.shortPT : category.shortEN;
+
+const getCategoryDescription = (category: Category, language: Language) =>
+  language === "es"
+    ? category.descriptionES
+    : language === "pt"
+      ? category.descriptionPT
+      : category.descriptionEN;
+
+const getStepPhase = (step: Step, language: Language) =>
+  language === "es" ? step.phaseES : language === "pt" ? step.phasePT : step.phaseEN;
+
+const getStepTranslation = (step: Step, language: Language) =>
+  language === "es" ? step.phraseES : language === "pt" ? step.phrasePT : step.phraseEN;
 
 const STORAGE_PREFIX = "pronto-checklist-v1:";
 
@@ -502,6 +635,14 @@ function Index() {
   const [suggestionOpen, setSuggestionOpen] = useState(false);
   const selected = categories.find((category) => category.id === selectedId);
   const copy = interfaceCopy[language];
+  const currentLanguageIndex = languageOrder.indexOf(language);
+  const nextLanguage = languageOrder[(currentLanguageIndex + 1) % languageOrder.length] ?? "es";
+  const languageLabel =
+    language === "en"
+      ? `Change language to ${languageNames[language][nextLanguage]}`
+      : language === "pt"
+        ? `Mudar idioma para ${languageNames[language][nextLanguage]}`
+        : `Cambiar idioma a ${languageNames[language][nextLanguage]}`;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -524,7 +665,7 @@ function Index() {
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
-    document.documentElement.lang = language === "es" ? "es" : "pt-BR";
+    document.documentElement.lang = language === "pt" ? "pt-BR" : language;
   }, [isDark, language]);
 
   useEffect(() => {
@@ -601,9 +742,14 @@ function Index() {
           type="button"
           variant="ghost"
           className="h-10 gap-1.5 px-2.5"
-          onClick={() => setLanguage((value) => (value === "es" ? "pt" : "es"))}
-          aria-label={copy.language}
-          title={copy.language}
+          onClick={() =>
+            setLanguage((value) => {
+              const currentIndex = languageOrder.indexOf(value);
+              return languageOrder[(currentIndex + 1) % languageOrder.length] ?? "es";
+            })
+          }
+          aria-label={languageLabel}
+          title={languageLabel}
         >
           <Languages aria-hidden="true" size={20} />
           <span className="text-xs font-bold">{language.toUpperCase()}</span>
@@ -617,7 +763,7 @@ function Index() {
     const completedCount = selected.steps.filter((step) => completed[step.id]).length;
     const allComplete = completedCount === selected.steps.length;
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selected.mapSearchQuery)}`;
-    const title = language === "es" ? selected.titleES : selected.titlePT;
+    const title = getCategoryTitle(selected, language);
 
     return (
       <main className="min-h-screen bg-background">
@@ -656,7 +802,7 @@ function Index() {
           >
             <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
               <MapPin aria-hidden="true" size={20} />
-              {copy.search} {language === "es" ? selected.shortES : selected.shortPT} {copy.nearby}
+              {copy.search} {getCategoryShort(selected, language)} {copy.nearby}
               <ExternalLink aria-hidden="true" className="ml-auto" size={17} />
             </a>
           </Button>
@@ -715,7 +861,7 @@ function Index() {
                     </Button>
                     <div className="min-w-0 flex-1">
                       <span className="inline-flex rounded-md bg-muted px-2 py-1 text-xs font-bold text-muted-foreground">
-                        {index + 1} · {language === "es" ? step.phaseES : step.phasePT}
+                        {index + 1} · {getStepPhase(step, language)}
                       </span>
                       <p
                         className={cn(
@@ -731,7 +877,7 @@ function Index() {
                           isComplete && "line-through",
                         )}
                       >
-                        {step.phraseES}
+                        {getStepTranslation(step, language)}
                       </p>
                       <PhraseActions phrase={step.phrasePT} language={language} compact />
                     </div>
@@ -809,10 +955,10 @@ function Index() {
                     <Icon aria-hidden="true" size={23} />
                   </span>
                   <span className="mt-4 text-base font-bold leading-tight text-card-foreground">
-                    {language === "es" ? category.titleES : category.titlePT}
+                     {getCategoryTitle(category, language)}
                   </span>
                   <span className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    {language === "es" ? category.descriptionES : category.descriptionPT}
+                     {getCategoryDescription(category, language)}
                   </span>
                   <span className="mt-auto flex items-center gap-1 pt-3 text-xs font-bold text-primary">
                     {copy.view}

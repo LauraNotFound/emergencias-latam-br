@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, LoaderCircle } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 
-type Language = "es" | "pt";
+type Language = "es" | "pt" | "en";
 type SourceLanguage = "es" | "pt" | "en";
 
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYSkmYIEGJH43VRGpFvN3p6q4SNFVSa7IqS_B4KAiYYNFwUbNY70-OcXQqfWPi53G5/exec";
@@ -51,6 +51,20 @@ const copy = {
     successTitle: "Sugestão enviada!",
     successText: "Obrigado por ajudar a melhorar este guia.",
     error: "Não foi possível enviar. Verifique sua conexão e tente novamente.",
+  },
+  en: {
+    title: "Suggest a phrase",
+    description: "Share a useful phrase for this guide.",
+    category: "Category",
+    sourceLanguage: "Source language",
+    source: "Source phrase",
+    translation: "Translation",
+    fields: { es: "Español", pt: "Português", en: "English" },
+    send: "Send suggestion",
+    sending: "Sending…",
+    successTitle: "Suggestion sent!",
+    successText: "Thank you for helping improve this guide.",
+    error: "Could not send your suggestion. Check your connection and try again.",
   },
 };
 

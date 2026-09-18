@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 type PhraseActionsProps = {
   phrase: string;
-  language: "es" | "pt";
+  language: "es" | "pt" | "en";
   compact?: boolean;
 };
 
@@ -20,6 +20,11 @@ const actionCopy = {
     listen: "Ouvir em português",
     speaking: "Reproduzindo",
     translate: "Traduzir no Google Tradutor",
+  },
+  en: {
+    listen: "Listen in Portuguese",
+    speaking: "Playing",
+    translate: "Translate with Google Translate",
   },
 };
 
@@ -71,13 +76,13 @@ export function PhraseActions({ phrase, language, compact = false }: PhraseActio
       {enabled ? (
         <Button asChild variant="ghost" className="h-9 gap-1.5 px-3 text-xs">
           <a href={translateUrl} target="_blank" rel="noreferrer" aria-label={copy.translate}>
-            {compact ? (language === "es" ? "Traducir" : "Translate") : copy.translate}
+            {compact ? (language === "es" ? "Traducir" : language === "pt" ? "Traduzir" : "Translate") : copy.translate}
             <ExternalLink aria-hidden="true" size={14} />
           </a>
         </Button>
       ) : (
         <Button type="button" variant="ghost" className="h-9 gap-1.5 px-3 text-xs" disabled>
-          {language === "es" ? "Traducir" : "Translate"}
+          {language === "es" ? "Traducir" : language === "pt" ? "Traduzir" : "Translate"}
           <ExternalLink aria-hidden="true" size={14} />
         </Button>
       )}
